@@ -1,28 +1,23 @@
+#include <iostream>
+#include "Monster.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <SFML/Window.hpp>
-#include <iostream>
 
-#include "Shapes.h"
+//Damage & winner aren't shown
 
 int main()
 {
-	sf::RenderWindow
-		window(sf::VideoMode(500, 500), "My window 500x500 px");
+	double m1PosX = 350.0;
+	double m1PosY = 350.0;
+	double m2PosX = 450.0;
+	double m2PosY = 150.0;
 
-	//-----------------------Shapes Sizes and Positions(X,Y)-----------------------//
-	circle* objetCircle = new circle(50, 50, 50); // R , x , y
+	Monster m1 = Monster("Monster1.json", m1PosX, m1PosY);
+	Monster m2 = Monster("Monster2.json", m2PosX, m2PosY);
 
-	Rectangle* objetRectangle = new Rectangle(100, 100, 200, 200); // L , H , x , y
+	sf::RenderWindow window(sf::VideoMode(750, 750), "Monster Battle Simulator");
 
-	objetCircle->Sprite.setFillColor
-	(sf::Color(100, 250, 50)); // Green
-
-	objetRectangle->Sprite.setFillColor
-	(sf::Color(24, 146, 209)); // Blue
-
-
-	while (window.isOpen()) //Game Loop
+	while (window.isOpen()) //GameLoop
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -31,78 +26,24 @@ int main()
 				window.close();
 		}
 
+		while (m1.getHealth() > 0.0 && m2.getHealth() > 0.0)
+		{
+			if (m1.getSpeed() > m2.getSpeed())
+			{
+				m1.attack(&m2);
+				m2.attack(&m1);
+			}
+			else
+			{
+				m2.attack(&m1);
+				m1.attack(&m2);
+			}
+		}
 
 		window.clear();
-
-		//Circle movement and speed
-		float Speed = 0.10;
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			objetCircle->Sprite.move(-Speed, 0);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			objetCircle->Sprite.move(Speed, 0);
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			objetCircle->Sprite.move(0, -Speed);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			objetCircle->Sprite.move(0, Speed);
-		}
-
-		//"Prohibiting" the circle to go out of the window
-		if (objetCircle->Sprite.getPosition().x < 0)
-		{
-			objetCircle->Sprite.setPosition(sf::Vector2f(0.f, objetCircle->Sprite.getPosition().y));
-		}
-
-		if (objetCircle->Sprite.getPosition().y < 0)
-		{
-			objetCircle->Sprite.setPosition(sf::Vector2f(objetCircle->Sprite.getPosition().x, 0.f));
-		}
-
-		if (objetCircle->Sprite.getPosition().x > 400)
-		{
-			objetCircle->Sprite.setPosition(sf::Vector2f(400.f, objetCircle->Sprite.getPosition().y));
-		}
-
-		if (objetCircle->Sprite.getPosition().y > 400)
-		{
-			objetCircle->Sprite.setPosition(sf::Vector2f(objetCircle->Sprite.getPosition().x, 400.f));
-		}
-
-		
-		//Collision happens
-		if (objetCircle->isColliding(objetRectangle))
-		{
-			objetCircle->Sprite.setFillColor
-			(sf::Color::Red);
-
-			objetRectangle->Sprite.setFillColor
-			(sf::Color::Red);
-		}
-		else
-		{
-			objetCircle->Sprite.setFillColor
-			(sf::Color(100, 250, 50)); // Green
-
-			objetRectangle->Sprite.setFillColor
-			(sf::Color(24, 146, 209)); // Blue
-		}
-
-		window.draw(objetCircle->Sprite);
-		window.draw(objetRectangle->Sprite);
-
-		//end of the current frame, display of everything we have drawn
+		m1.draw(&window);
+		m2.draw(&window);
 		window.display();
 	}
 
-	// Windows specifics
-	system("pause");
-	return 0;
 }
